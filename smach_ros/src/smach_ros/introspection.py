@@ -161,7 +161,13 @@ class ContainerProxy():
         """Loop to publish the status and structure heartbeats."""
         while not rospy.is_shutdown() and self._keep_running:
             #TODO
-            self._publish_status('HEARTBEAT')
+            try:
+                self._publish_status('HEARTBEAT')
+            except RuntimeError as e:
+                if "moveit_ros_planning_interface._moveit_move_group_interface.MoveGroupInterface" not in str(e):
+                    raise
+                else:
+                    continue
             try:
                 end_time = rospy.Time.now() + self._update_rate
                 while not rospy.is_shutdown() and rospy.Time.now() < end_time:
